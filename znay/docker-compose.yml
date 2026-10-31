@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: znay-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: znay
+      POSTGRES_PASSWORD: znay
+      POSTGRES_DB: znay
+    ports:
+      - '5432:5432'
+    volumes:
+      - znay_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U znay -d znay']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  znay_pgdata:

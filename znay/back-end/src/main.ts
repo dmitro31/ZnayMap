@@ -1,10 +1,13 @@
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { AppModule, ObserveInstrument } from './app.module';
+import { AppModule } from './app.module';
+import { configureApp } from './app.setup';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    instrument: ObserveInstrument,
-  });
-  await app.listen(process.env.PORT ?? 3000);
+async function bootstrap(): Promise<void> {
+  const app = await NestFactory.create(AppModule);
+  configureApp(app);
+  const port = app.get(ConfigService).get<number>('app.port', 3000);
+  await app.listen(port);
 }
-bootstrap();
+
+void bootstrap();

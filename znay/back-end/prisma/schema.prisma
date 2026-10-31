@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum CompanySource {
+  EDR
+  OSM
+  WEBSITE
+  OPENDATABOT
+  PROZORRO
+  MANUAL
+}
+
+enum CompanyStatus {
+  ACTIVE
+  INACTIVE
+  LIQUIDATED
+  UNKNOWN
+}
+
+model Company {
+  id              String        @id @default(uuid()) @db.Uuid
+  edrpou          String?       @unique @db.VarChar(10)
+  name            String        @db.VarChar(500)
+  normalizedName  String        @db.VarChar(500)
+  status          CompanyStatus @default(UNKNOWN)
+  region          String?       @db.VarChar(120)
+  city            String?       @db.VarChar(120)
+  address         String?       @db.VarChar(500)
+  kvedCode        String?       @db.VarChar(10)
+  kvedName        String?       @db.VarChar(500)
+  website         String?       @db.VarChar(255)
+  phone           String?       @db.VarChar(32)
+  email           String?       @db.VarChar(255)
+  source          CompanySource
+  sourceId        String?       @db.VarChar(120)
+  sourceUpdatedAt DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@unique([source, sourceId])
+  @@index([normalizedName])
+  @@index([city])
+  @@index([region])
+  @@index([kvedCode])
+  @@index([source])
+  @@index([createdAt])
+  @@map("companies")
+}
