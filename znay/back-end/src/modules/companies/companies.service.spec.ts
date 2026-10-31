@@ -60,6 +60,41 @@ describe('CompaniesService', () => {
     expect(result.data).toHaveLength(2);
   });
 
+  it('findAll builds contact presence filters', async () => {
+    prismaMock.$transaction.mockResolvedValue([0, []]);
+
+    await service.findAll({
+      hasWebsite: true,
+      hasPhone: true,
+      hasEmail: false,
+    });
+
+    expect(prismaMock.company.count).toHaveBeenCalledWith({
+      where: {
+        website: { not: null },
+        phone: { not: null },
+        email: null,
+      },
+    });
+  });
+
+  it('findAll applies text and location filters', async () => {
+    prismaMock.$transaction.mockResolvedValue([0, []]);
+
+    await service.findAll({ q: 'Ромашка', city: 'Калуш', kvedCode: '62' });
+
+    expect(prismaMock.company.count).toHaveBeenCalledWith({
+      where: {
+        OR: [
+          { normalizedName: { contains: 'ромашка' } },
+          { edrpou: { startsWith: 'Ромашка' } },
+        ],
+        city: { equals: 'Калуш', mode: 'insensitive' },
+        kvedCode: { startsWith: '62' },
+      },
+    });
+  });
+
   it('findOne throws NotFoundException when company is missing', async () => {
     prismaMock.company.findUnique.mockResolvedValue(null);
     await expect(service.findOne('missing')).rejects.toBeInstanceOf(

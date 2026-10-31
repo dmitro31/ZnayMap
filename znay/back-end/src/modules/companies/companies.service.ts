@@ -70,7 +70,17 @@ export class CompaniesService {
   }
 
   private buildWhere(query: QueryCompaniesDto): Prisma.CompanyWhereInput {
-    const { q, city, region, kvedCode, source, status, hasWebsite } = query;
+    const {
+      q,
+      city,
+      region,
+      kvedCode,
+      source,
+      status,
+      hasWebsite,
+      hasPhone,
+      hasEmail,
+    } = query;
     const where: Prisma.CompanyWhereInput = {};
 
     if (q) {
@@ -84,10 +94,14 @@ export class CompaniesService {
     if (kvedCode) where.kvedCode = { startsWith: kvedCode };
     if (source) where.source = source;
     if (status) where.status = status;
-    if (hasWebsite !== undefined) {
-      where.website = hasWebsite ? { not: null } : null;
-    }
+    if (hasWebsite !== undefined) where.website = this.presence(hasWebsite);
+    if (hasPhone !== undefined) where.phone = this.presence(hasPhone);
+    if (hasEmail !== undefined) where.email = this.presence(hasEmail);
 
     return where;
+  }
+
+  private presence(present: boolean): { not: null } | null {
+    return present ? { not: null } : null;
   }
 }

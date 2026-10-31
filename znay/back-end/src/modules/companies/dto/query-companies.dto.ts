@@ -1,6 +1,6 @@
 import { CompanySource, CompanyStatus } from '@prisma/client';
-import { Transform } from 'class-transformer';
 import { IsBoolean, IsEnum, IsIn, IsOptional, IsString, MaxLength } from 'class-validator';
+import { ToBoolean } from '../../../common/decorators/to-boolean.decorator';
 import { Trim } from '../../../common/decorators/trim.decorator';
 import { PaginationQueryDto } from '../../../common/dto/pagination-query.dto';
 
@@ -41,13 +41,19 @@ export class QueryCompaniesDto extends PaginationQueryDto {
   status?: CompanyStatus;
 
   @IsOptional()
-  @Transform(({ value }: { value: unknown }) => {
-    if (value === 'true' || value === true) return true;
-    if (value === 'false' || value === false) return false;
-    return value;
-  })
+  @ToBoolean()
   @IsBoolean()
   hasWebsite?: boolean;
+
+  @IsOptional()
+  @ToBoolean()
+  @IsBoolean()
+  hasPhone?: boolean;
+
+  @IsOptional()
+  @ToBoolean()
+  @IsBoolean()
+  hasEmail?: boolean;
 
   @IsOptional()
   @IsIn(COMPANY_SORT_FIELDS)
